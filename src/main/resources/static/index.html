@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Finder</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f9f5f0;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #e07b39;
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        header h1 { font-size: 2rem; }
+        header p  { margin-top: 6px; opacity: 0.9; }
+
+        .search-box {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .search-box input:focus { border-color: #e07b39; }
+
+        .search-box button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 14px;
+            background: #e07b39;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-box button:hover { background: #c9642a; }
+
+        #status {
+            text-align: center;
+            color: #888;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 24px;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .card:hover { transform: translateY(-4px); }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card-body { padding: 16px; }
+
+        .card-body h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 6px;
+            margin-bottom: 10px;
+        }
+
+        .badge.green { background: #e6f4ea; color: #2e7d32; }
+        .badge.red   { background: #fdecea; color: #c62828; }
+
+        .card-body a {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            background: #e07b39;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .card-body a:hover { background: #c9642a; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Smart Chef</h1>
+    <p>Enter the ingredients you have and we'll find recipes for you!</p>
+</header>
+
+<div class="search-box">
+    <input type="text" id="ingredients" placeholder="e.g. chicken, garlic, rice, lemon" />
+    <button onclick="searchRecipes()">Find Recipes</button>
+    <p id="status"></p>
+</div>
+
+<div class="results" id="results"></div>
+
+<script>
+    async function searchRecipes() {
+        const ingredients = document.getElementById('ingredients').value.trim();
+        const status = document.getElementById('status');
+        const results = document.getElementById('results');
+
+        if (!ingredients) {
+            status.textContent = 'Please enter at least one ingredient.';
+            return;
+        }
+
+        status.textContent = 'Searching...';
+        results.innerHTML = '';
+
+        try {
+            const response = await fetch(`/recipes?ingredients=${encodeURIComponent(ingredients)}&number=9`);
+            const recipes = await response.json();
+
+            if (recipes.length === 0) {
+                status.textContent = 'No recipes found. Try different ingredients!';
+                return;
+            }
+
+            status.textContent = `Found ${recipes.length} recipe(s)!`;
+
+            recipes.forEach(recipe => {
+                results.innerHTML += `
+                    <div class="card">
+                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <div class="card-body">
+                            <h3>${recipe.title}</h3>
+                            <span class="badge green">✅ Using ${recipe.usedIngredients}</span>
+                            <span class="badge red">❌ Missing ${recipe.missingIngredients}</span>
+                            <a href="${recipe.link}" target="_blank">View Recipe</a>
+                        </div>
+                    </div>`;
+            });
+
+        } catch (error) {
+            status.textContent = 'Something went wrong. Is the server running?';
+        }
+    }
+</script>
+
+</body>
+</html>

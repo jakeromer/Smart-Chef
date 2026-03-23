@@ -1,0 +1,12 @@
+target/
+.mvn/
+mvnw
+mvnw.cmd
+*.class
+*.log
+*.jar
+*.war
+.DS_Store
+.idea/
+*.iml
+application-secrets.properties
