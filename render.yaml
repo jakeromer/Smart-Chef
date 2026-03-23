@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: smart-chef
+    runtime: java
+    buildCommand: ./mvnw clean install -DskipTests
+    startCommand: java -jar target/RecipeFinder-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: CLAUDE_API_KEY
+        sync: false
+      - key: JAVA_VERSION
+        value: 17
