@@ -24,7 +24,7 @@ public class RecipeService {
     }
 
     private void loadRecipes() throws IOException {
-        InputStream inputStream = new ClassPathResource("AI_Recipes.xlsx").getInputStream();
+        InputStream inputStream = new ClassPathResource("AI_Updated_Recipes.xlsx").getInputStream();
         Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
 
