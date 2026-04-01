@@ -167,7 +167,7 @@
             recipes.forEach(recipe => {
                 results.innerHTML += `
                     <div class="card">
-                        <img src="https://source.unsplash.com/400x300/?${encodeURIComponent(recipe.title)},food" alt="${recipe.title}">
+                        <img src="https://loremflickr.com/400/300/${encodeURIComponent(recipe.title)},food" alt="${recipe.title}">
                         <div class="card-body">
                             <h3>${recipe.title}</h3>
                             <span class="badge green">✅ Using ${recipe.usedIngredients}</span>
