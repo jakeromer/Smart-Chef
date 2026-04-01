@@ -165,10 +165,9 @@
             status.textContent = `Found ${recipes.length} recipe(s)!`;
 
             recipes.forEach(recipe => {
-                console.log(recipe.link);
                 results.innerHTML += `
                     <div class="card">
-                        <img src="${recipe.image}" alt="${recipe.title}">
+                        <img src="https://source.unsplash.com/400x300/?${encodeURIComponent(recipe.title)},food" alt="${recipe.title}">
                         <div class="card-body">
                             <h3>${recipe.title}</h3>
                             <span class="badge green">✅ Using ${recipe.usedIngredients}</span>
