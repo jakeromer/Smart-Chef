@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -45,7 +44,20 @@ public class RecipeService {
 
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
-        return cell.getCellType() == CellType.STRING ? cell.getStringCellValue() : "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((long) cell.getNumericCellValue());
+            case FORMULA:
+                try {
+                    return cell.getStringCellValue();
+                } catch (Exception e) {
+                    return cell.getCellFormula();
+                }
+            default:
+                return "";
+        }
     }
 
     public List<RecipeResult> searchRecipes(String userIngredients) {
