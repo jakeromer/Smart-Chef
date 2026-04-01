@@ -165,8 +165,8 @@
             status.textContent = `Found ${recipes.length} recipe(s)!`;
 
             recipes.forEach(recipe => {
-                results.innerHTML += `
                 console.log(recipe.link);
+                results.innerHTML += `
                     <div class="card">
                         <img src="${recipe.image}" alt="${recipe.title}">
                         <div class="card-body">
