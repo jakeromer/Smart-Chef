@@ -38,11 +38,14 @@ public class ImageService {
                     JSONObject json = new JSONObject(response.body().string());
                     JSONArray results = json.getJSONArray("results");
                     if (results.length() > 0) {
-                        String baseUrl = json.getString("baseUri");
-                        String image = results.getJSONObject(0).getString("image");
-                        String fullUrl = baseUrl + image;
-                        imageCache.put(recipeName, fullUrl);
-                        return fullUrl;
+                        JSONObject first = results.getJSONObject(0);
+                        if (!first.isNull("image")) {
+                            String baseUrl = json.getString("baseUri");
+                            String image = first.getString("image");
+                            String fullUrl = baseUrl + image;
+                            imageCache.put(recipeName, fullUrl);
+                            return fullUrl;
+                        }
                     }
                 }
             }
@@ -50,6 +53,8 @@ public class ImageService {
             e.printStackTrace();
         }
 
-        return "https://placehold.co/400x300/e07b39/white?text=" + recipeName.replace(" ", "+");
+        String fallback = "https://placehold.co/400x300/e07b39/white?text=" + recipeName.replace(" ", "+");
+        imageCache.put(recipeName, fallback);
+        return fallback;
     }
 }
