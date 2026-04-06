@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Chef</title>
+    <title>Smart Chef | AI Recipe Finder</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,214 +13,245 @@
             background: #f7f7f5;
             color: #1a1a1a;
             min-height: 100vh;
+            line-height: 1.6;
         }
 
         header {
             background: #e07b39;
             color: white;
-            padding: 36px 24px;
+            padding: 50px 24px;
             text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.6rem;
+            font-size: 3rem;
             letter-spacing: -0.5px;
+            margin-bottom: 10px;
         }
 
         header p {
-            margin-top: 8px;
             opacity: 0.9;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 400;
         }
 
-        .search-box {
-            max-width: 600px;
-            margin: 44px auto;
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
             padding: 0 20px;
+        }
+
+        .search-section {
+            max-width: 600px;
+            margin: -30px auto 40px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
         .search-box input {
             width: 100%;
-            padding: 14px 18px;
+            padding: 16px;
             font-size: 1rem;
             font-family: 'Inter', sans-serif;
-            border: 1.5px solid #ddd;
-            border-radius: 10px;
+            border: 2px solid #eee;
+            border-radius: 12px;
             outline: none;
-            background: white;
-            transition: border 0.2s;
+            transition: border-color 0.3s;
         }
 
-        .search-box input:focus { border-color: #e07b39; }
+        .search-box input:focus {
+            border-color: #e07b39;
+        }
 
         .search-box button {
             width: 100%;
-            margin-top: 12px;
-            padding: 14px;
+            margin-top: 15px;
+            padding: 16px;
             background: #e07b39;
             color: white;
             font-size: 1rem;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
+            font-weight: 700;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s;
         }
 
-        .search-box button:hover { background: #c9642a; }
+        .search-box button:hover {
+            background: #c9642a;
+            transform: translateY(-1px);
+        }
+
+        .search-box button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
 
         #status {
             text-align: center;
-            color: #999;
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 0.9rem;
-            font-style: italic;
+            color: #666;
+            min-height: 1.2em;
         }
 
         .results {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            max-width: 1100px;
-            margin: 10px auto 60px;
-            padding: 0 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
         }
 
         .card {
             background: white;
-            border-radius: 12px;
-            border: 1px solid #ebebeb;
-            overflow: hidden;
+            border-radius: 16px;
+            border: 1px solid #eee;
             display: flex;
             flex-direction: column;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
         }
 
         .card:hover {
-            transform: scale(1.04);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
         }
 
-        .card-top {
-            padding: 22px 20px 18px;
-            border-bottom: 1px solid #f2f2f2;
-        }
-
-        .card-top h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            line-height: 1.3;
-        }
-
-        .card-body {
-            padding: 14px 20px 18px;
-            flex: 1;
+        .card-content {
+            padding: 24px;
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+        }
+
+        .card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #2d3436;
         }
 
         .badges {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
-        .badge.green { background: #f0faf3; color: #276749; }
-        .badge.red   { background: #fff5f5; color: #9b2c2c; }
+        .badge-match { background: #e6f4ea; color: #1e7e34; }
+        .badge-missing { background: #fdf2f2; color: #c81e1e; }
 
-        .card-body a {
+        .recipe-link {
             display: block;
             text-align: center;
-            padding: 11px;
-            background: #e07b39;
+            padding: 14px;
+            background: #1a1a1a;
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
             margin-top: auto;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
         }
 
-        .card-body a:hover { background: #c9642a; }
+        .recipe-link:hover {
+            opacity: 0.85;
+        }
     </style>
 </head>
 <body>
 
 <header>
     <h1>Smart Chef</h1>
-    <p>Enter the ingredients you have and we'll find recipes for you!</p>
+    <p>AI-powered recipes based on what's in your fridge.</p>
 </header>
 
-<div class="search-box">
-    <input type="text" id="ingredients" placeholder="e.g. chicken, garlic, rice, lemon" />
-    <button onclick="searchRecipes()">Find Recipes</button>
-    <p id="status"></p>
-</div>
+<div class="container">
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="ingredients" placeholder="List your ingredients (e.g. eggs, spinach, feta)..." />
+            <button id="searchBtn" onclick="searchRecipes()">Find My Recipes</button>
+            <p id="status"></p>
+        </div>
+    </div>
 
-<div class="results" id="results"></div>
+    <div class="results" id="results"></div>
+</div>
 
 <script>
     async function searchRecipes() {
-        const ingredients = document.getElementById('ingredients').value.trim();
+        const inputField = document.getElementById('ingredients');
+        const btn = document.getElementById('searchBtn');
         const status = document.getElementById('status');
-        const results = document.getElementById('results');
+        const resultsContainer = document.getElementById('results');
+        
+        const ingredients = inputField.value.trim();
 
         if (!ingredients) {
-            status.textContent = 'Please enter at least one ingredient.';
+            status.textContent = 'Please tell me what ingredients you have!';
             return;
         }
 
-        status.textContent = 'Searching...';
-        results.innerHTML = '';
+        // UI State: Loading
+        status.textContent = 'AI is analyzing ingredients and searching recipes...';
+        btn.disabled = true;
+        btn.textContent = 'Searching...';
+        resultsContainer.innerHTML = '';
 
         try {
-            const response = await fetch(`/recipes?ingredients=${encodeURIComponent(ingredients)}&number=9`);
+            // Updated to use your Java endpoint
+            const response = await fetch(`/recipes?ingredients=${encodeURIComponent(ingredients)}`);
+            
+            if (!response.ok) throw new Error('Server error');
+            
             const recipes = await response.json();
 
             if (recipes.length === 0) {
-                status.textContent = 'No recipes found. Try different ingredients!';
-                return;
-            }
-
-            status.textContent = `Found ${recipes.length} recipe(s)!`;
-
-            recipes.forEach(recipe => {
-                results.innerHTML += `
-                    <div class="card">
-                        <div class="card-top">
-                            <h3>${recipe.title}</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="badges">
-                                <span class="badge green">✅ Using ${recipe.usedIngredients}</span>
-                                <span class="badge red">❌ Missing ${recipe.missingIngredients}</span>
+                status.textContent = 'No exact matches found. Try adding more basic ingredients!';
+            } else {
+                status.textContent = `Success! We found ${recipes.length} recipes for you.`;
+                
+                recipes.forEach(recipe => {
+                    const card = `
+                        <div class="card">
+                            <div class="card-content">
+                                <h3>${recipe.title}</h3>
+                                <div class="badges">
+                                    <span class="badge badge-match">✅ ${recipe.usedIngredients} Matches</span>
+                                    <span class="badge badge-missing">❌ ${recipe.missingIngredients} Missing</span>
+                                </div>
+                                <a href="${recipe.link}" class="recipe-link" target="_blank">View Full Recipe →</a>
                             </div>
-                            <a href="${recipe.link}" target="_blank">View Recipe →</a>
                         </div>
-                    </div>`;
-            });
-
+                    `;
+                    resultsContainer.innerHTML += card;
+                });
+            }
         } catch (error) {
-            status.textContent = 'Something went wrong. Is the server running?';
+            console.error(error);
+            status.textContent = 'Error connecting to the server. Make sure your Java app is running!';
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Find My Recipes';
         }
     }
+
+    // Allow "Enter" key to trigger search
+    document.getElementById('ingredients').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            searchRecipes();
+        }
+    });
 </script>
 
 </body>

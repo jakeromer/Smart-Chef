@@ -10,56 +10,45 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class RecipeService {
 
-    @Autowired
-    private ImageService imageService;
-
     private List<RecipeData> allRecipes = new ArrayList<>();
 
-    public RecipeService() throws IOException {
+    @PostConstruct
+    public void init() throws IOException {
         loadRecipes();
     }
 
     private void loadRecipes() throws IOException {
-        InputStream inputStream = new ClassPathResource("AI_Updated_Recipes.xlsx").getInputStream();
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row != null) {
-                String name = getCellValue(row.getCell(0));
-                String ingredients = getCellValue(row.getCell(1));
-                String recipeLink = getCellValue(row.getCell(3));
-
-                allRecipes.add(new RecipeData(name, ingredients, recipeLink));
+        try (InputStream inputStream = new ClassPathResource("AI_Updated_Recipes.xlsx").getInputStream();
+             Workbook workbook = new XSSFWorkbook(inputStream)) {
+            
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    String name = getCellValue(row.getCell(0));
+                    String ingredients = getCellValue(row.getCell(1));
+                    String recipeLink = getCellValue(row.getCell(3));
+                    allRecipes.add(new RecipeData(name, ingredients, recipeLink));
+                }
             }
         }
-        workbook.close();
     }
 
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                return String.valueOf((long) cell.getNumericCellValue());
-            case FORMULA:
-                try {
-                    return cell.getStringCellValue();
-                } catch (Exception e) {
-                    return cell.getCellFormula();
-                }
-            default:
-                return "";
-        }
+        return switch (cell.getCellType()) {
+            case STRING -> cell.getStringCellValue();
+            case NUMERIC -> String.valueOf((long) cell.getNumericCellValue());
+            default -> "";
+        };
     }
 
     public List<RecipeResult> searchRecipes(String userIngredients) {
@@ -68,37 +57,24 @@ public class RecipeService {
 
         for (RecipeData recipe : allRecipes) {
             String[] recipeIngredients = recipe.ingredients.toLowerCase().split(",");
-
             int matchCount = 0;
-            List<String> matchedRecipeIngredients = new ArrayList<>();
 
             for (String recipeIng : recipeIngredients) {
                 recipeIng = recipeIng.trim();
-                boolean found = false;
-
                 for (String searchIng : searchIngredients) {
-                    searchIng = searchIng.trim();
-                    if (recipeIng.contains(searchIng) || searchIng.contains(recipeIng)) {
-                        found = true;
+                    if (recipeIng.contains(searchIng.trim())) {
+                        matchCount++;
                         break;
                     }
-                }
-
-                if (found) {
-                    matchCount++;
-                    matchedRecipeIngredients.add(recipeIng);
                 }
             }
 
             if (matchCount > 0) {
-                int missingCount = recipeIngredients.length - matchCount;
-                String image = imageService.getImageForRecipe(recipe.name);
                 results.add(new RecipeResult(
                     results.size() + 1,
                     recipe.name,
-                    image,
                     matchCount,
-                    missingCount,
+                    recipeIngredients.length - matchCount,
                     recipe.recipeLink
                 ));
             }
