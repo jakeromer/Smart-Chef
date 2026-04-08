@@ -121,6 +121,12 @@
             box-shadow: 0 12px 30px rgba(0,0,0,0.08);
         }
 
+        .card.perfect {
+            border: 2px solid #f5c518;
+            background: linear-gradient(135deg, #fffdf0, #fff8d6);
+            box-shadow: 0 4px 20px rgba(245, 197, 24, 0.3);
+        }
+
         .card-content {
             padding: 24px;
             flex-grow: 1;
@@ -139,6 +145,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .badge {
@@ -150,6 +157,7 @@
 
         .badge-match { background: #e6f4ea; color: #1e7e34; }
         .badge-missing { background: #fdf2f2; color: #c81e1e; }
+        .badge-perfect { background: #fff3b0; color: #7d5a00; }
 
         .recipe-link {
             display: block;
@@ -194,7 +202,7 @@
         const btn = document.getElementById('searchBtn');
         const status = document.getElementById('status');
         const resultsContainer = document.getElementById('results');
-        
+
         const ingredients = inputField.value.trim();
 
         if (!ingredients) {
@@ -202,31 +210,31 @@
             return;
         }
 
-        // UI State: Loading
         status.textContent = 'AI is analyzing ingredients and searching recipes...';
         btn.disabled = true;
         btn.textContent = 'Searching...';
         resultsContainer.innerHTML = '';
 
         try {
-            // Updated to use your Java endpoint
             const response = await fetch(`/recipes?ingredients=${encodeURIComponent(ingredients)}`);
-            
+
             if (!response.ok) throw new Error('Server error');
-            
+
             const recipes = await response.json();
 
             if (recipes.length === 0) {
                 status.textContent = 'No exact matches found. Try adding more basic ingredients!';
             } else {
                 status.textContent = `Success! We found ${recipes.length} recipes for you.`;
-                
+
                 recipes.forEach(recipe => {
+                    const isPerfect = recipe.missingIngredients === 0;
                     const card = `
-                        <div class="card">
+                        <div class="card ${isPerfect ? 'perfect' : ''}">
                             <div class="card-content">
                                 <h3>${recipe.title}</h3>
                                 <div class="badges">
+                                    ${isPerfect ? '<span class="badge badge-perfect">⭐ Perfect Match</span>' : ''}
                                     <span class="badge badge-match">✅ ${recipe.usedIngredients} Matches</span>
                                     <span class="badge badge-missing">❌ ${recipe.missingIngredients} Missing</span>
                                 </div>
@@ -246,7 +254,6 @@
         }
     }
 
-    // Allow "Enter" key to trigger search
     document.getElementById('ingredients').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             searchRecipes();
