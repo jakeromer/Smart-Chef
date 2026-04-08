@@ -132,19 +132,18 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            gap: 14px;
         }
 
         .card h3 {
             font-family: 'Playfair Display', serif;
             font-size: 1.4rem;
-            margin-bottom: 15px;
             color: #2d3436;
         }
 
         .badges {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
@@ -155,9 +154,23 @@
             font-weight: 600;
         }
 
-        .badge-match { background: #e6f4ea; color: #1e7e34; }
+        .badge-match   { background: #e6f4ea; color: #1e7e34; }
         .badge-missing { background: #fdf2f2; color: #c81e1e; }
         .badge-perfect { background: #fff3b0; color: #7d5a00; }
+
+        .meta {
+            display: flex;
+            gap: 14px;
+            font-size: 0.85rem;
+            color: #555;
+            flex-wrap: wrap;
+        }
+
+        .meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
         .recipe-link {
             display: block;
@@ -229,7 +242,7 @@
 
                 recipes.forEach(recipe => {
                     const isPerfect = recipe.missingIngredients === 0;
-                    const card = `
+                    resultsContainer.innerHTML += `
                         <div class="card ${isPerfect ? 'perfect' : ''}">
                             <div class="card-content">
                                 <h3>${recipe.title}</h3>
@@ -238,11 +251,15 @@
                                     <span class="badge badge-match">✅ ${recipe.usedIngredients} Matches</span>
                                     <span class="badge badge-missing">❌ ${recipe.missingIngredients} Missing</span>
                                 </div>
+                                <div class="meta">
+                                    ${recipe.calories ? `<span>🔥 ${recipe.calories} cal</span>` : ''}
+                                    ${recipe.prepTime ? `<span>⏱ Prep: ${recipe.prepTime}</span>` : ''}
+                                    ${recipe.cookTime ? `<span>🍳 Cook: ${recipe.cookTime}</span>` : ''}
+                                </div>
                                 <a href="${recipe.link}" class="recipe-link" target="_blank">View Full Recipe →</a>
                             </div>
                         </div>
                     `;
-                    resultsContainer.innerHTML += card;
                 });
             }
         } catch (error) {
