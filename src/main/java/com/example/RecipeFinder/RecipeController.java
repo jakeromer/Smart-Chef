@@ -16,12 +16,14 @@ public class RecipeController {
     @Autowired
     private RecipeService recipeService;
 
+    @Autowired
+    private IngredientExtractor ingredientExtractor;
+
     @GetMapping("/recipes")
     public List<RecipeResult> getRecipes(@RequestParam String ingredients) throws IOException {
-        // Use AI to extract clean ingredient list from natural language
-        String cleanedIngredients = IngredientExtractor.extractIngredients(ingredients);
-        
-        // Search the Excel spreadsheet
+        System.out.println("Raw input: " + ingredients);
+        String cleanedIngredients = ingredientExtractor.extractIngredients(ingredients);
+        System.out.println("Claude cleaned: " + cleanedIngredients);
         return recipeService.searchRecipes(cleanedIngredients);
     }
 }
