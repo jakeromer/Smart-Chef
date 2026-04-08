@@ -27,10 +27,19 @@ public class IngredientExtractor {
     public static String extractIngredients(String userInput) {
         OkHttpClient client = new OkHttpClient();
         
-        String prompt = "Extract ONLY the ingredient names from this text as a comma-separated list. " +
-                       "Do not include quantities, measurements, or any other text. " +
-                       "Just return the ingredient names separated by commas. " +
-                       "Text: " + userInput;
+        String prompt = "You are an ingredient parser. The user will describe what ingredients they have, " +
+               "possibly in natural language (e.g. 'I have some potatoes and eggs') or with typos " +
+               "(e.g. 'pottaoes', 'chiken', 'tomatoe'). " +
+               "Your job is to: " +
+               "1. Understand what ingredients they mean, even with spelling mistakes or casual phrasing. " +
+               "2. Correct any typos to the proper ingredient name. " +
+               "3. Return ONLY a comma-separated list of clean, correctly spelled ingredient names. " +
+               "4. Do not include quantities, measurements, filler words, or any explanation. " +
+               "Examples: " +
+               "'I have pottaoes and some chiken' → 'potatoes, chicken' " +
+               "'2 cups of flowr, 3 egs, and buttr' → 'flour, eggs, butter' " +
+               "'tomatoe, garic, onoin' → 'tomato, garlic, onion' " +
+               "Now parse this: " + userInput;
         
         JSONObject requestBody = new JSONObject();
         requestBody.put("model", "claude-sonnet-4-20250514");
